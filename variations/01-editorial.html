@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-preset="paper" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carta · Lume</title>
+<meta name="description" content="Editorial single-column menu for Osteria Lume.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/base.css">
+<script src="../assets/palette.js"></script>
+<style>
+.page { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: clamp(24px, 6vw, 72px) clamp(20px, 5vw, 40px) 120px; }
+.masthead { text-align: center; padding-top: 44px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin: 0 0 18px; }
+.masthead h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(72px, 15vw, 136px); line-height: .9; letter-spacing: -.03em; margin: 0; font-variation-settings: 'opsz' 144; }
+.lede { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: clamp(18px, 2.4vw, 23px); color: var(--muted); max-width: 34ch; margin: 22px auto 0; line-height: 1.35; }
+.meta { margin-top: 28px; font-size: 13px; color: var(--muted); display: flex; gap: 6px 22px; justify-content: center; flex-wrap: wrap; }
+.rule { height: 1px; background: var(--line); margin: 44px 0 0; position: relative; }
+.rule::after { content: ''; position: absolute; left: 50%; top: -4px; width: 9px; height: 9px; transform: translateX(-50%) rotate(45deg); background: var(--bg); border: 1px solid var(--line); }
+.tabs { position: sticky; top: 0; z-index: 5; background: color-mix(in oklab, var(--bg) 86%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin: 0 calc(-1 * clamp(20px, 5vw, 40px)); padding: 0 clamp(20px, 5vw, 40px); border-bottom: 1px solid var(--line); }
+.tabs-in { position: relative; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tabs-in::-webkit-scrollbar { display: none; }
+.tab { flex: 0 0 auto; padding: 16px 12px; font-size: 14px; font-weight: 500; letter-spacing: .01em; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color .25s; }
+.tab.on, .tab:hover { color: var(--text); }
+.ink { position: absolute; bottom: -1px; height: 2px; background: var(--accent); left: 0; width: 0; transition: left .45s var(--ease), width .45s var(--ease); }
+.cat { padding-top: 56px; scroll-margin-top: 60px; }
+.cat-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 6px; }
+.cat-head h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(32px, 5vw, 42px); margin: 0; letter-spacing: -.02em; }
+.cat-head .num { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: .15em; }
+.blurb { margin: 0 0 18px; color: var(--muted); font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: 17px; }
+.items { list-style: none; margin: 0; padding: 0; }
+.item { display: grid; grid-template-columns: 56px 1fr; gap: 0 16px; padding: 18px 0; border-top: 1px solid var(--line); align-items: start; }
+.item:last-child { border-bottom: 1px solid var(--line); }
+.thumb { width: 56px; height: 56px; border-radius: var(--radius); object-fit: cover; background: var(--line); }
+.row { display: flex; align-items: baseline; gap: 10px; }
+.row h3 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 19px; letter-spacing: -.005em; transition: color .25s; }
+.leader { flex: 1; border-bottom: 1px dotted var(--line); transform: translateY(-5px); min-width: 16px; }
+.price { font-family: var(--font-mono); font-size: 14px; white-space: nowrap; }
+.desc { margin: 4px 0 0; color: var(--muted); font-size: 14.5px; line-height: 1.45; max-width: 52ch; }
+.tagrow { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 7px; }
+.tag.pick { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
+.peek { position: fixed; left: 0; top: 0; width: 220px; aspect-ratio: 4 / 5; border-radius: var(--radius); overflow: hidden; pointer-events: none; z-index: 50; opacity: 0; transform: translate(-50%, -50%) scale(.9) rotate(-3deg); transition: opacity .3s var(--ease), transform .45s var(--ease); box-shadow: 0 30px 50px -20px rgb(0 0 0 / .45); display: none; background: var(--surface); }
+.peek img { width: 100%; height: 100%; object-fit: cover; }
+.peek.show { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
+@media (hover: hover) and (pointer: fine) {
+  .peek { display: block; }
+  .item { grid-template-columns: 1fr; }
+  .thumb { display: none; }
+  .item:hover .row h3 { color: var(--accent); }
+}
+.foot { margin-top: 80px; text-align: center; color: var(--muted); font-size: 13px; }
+.foot .mark { font-family: var(--font-display); font-size: 30px; color: var(--text); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<canvas id="bg" class="ml-bg" aria-hidden="true"></canvas>
+<div class="page">
+  <header class="masthead">
+    <p class="eyebrow rv" style="--i:0">Osteria · Pizzeria · Trastevere</p>
+    <h1 class="rv" style="--i:1">Lume</h1>
+    <p class="lede rv" style="--i:2" id="lede"></p>
+    <div class="meta rv" style="--i:3" id="meta"></div>
+    <div class="rule"></div>
+  </header>
+  <nav class="tabs" aria-label="Menu sections"><div class="tabs-in" id="tabs"><span class="ink" id="ink" aria-hidden="true"></span></div></nav>
+  <main id="menu"></main>
+  <footer class="foot">
+    <div class="mark">Lume</div>
+    <p>Prices include VAT. Tell us about allergies before you order.<br>Cover 2 per person. Card and cash.</p>
+  </footer>
+</div>
+<div class="peek" id="peek" aria-hidden="true"><img alt=""></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/ui.js"></script>
+<script src="../assets/scene.js"></script>
+<script>
+(function () {
+  var tabs = document.getElementById('tabs'), ink = document.getElementById('ink'), menu = document.getElementById('menu');
+  document.getElementById('lede').textContent = MENU.tagline;
+  document.getElementById('meta').innerHTML = '<span>' + MENU.hours + '</span><span>' + MENU.address + '</span><span>' + MENU.phone + '</span>';
+
+  MENU.categories.forEach(function (c) {
+    var a = document.createElement('a'); a.className = 'tab'; a.href = '#' + c.id; a.textContent = c.name; a.dataset.id = c.id; tabs.appendChild(a);
+    var s = document.createElement('section'); s.className = 'cat'; s.id = c.id;
+    s.innerHTML = '<div class="cat-head rv"><span class="num">' + c.num + '</span><h2>' + c.name + '</h2></div><p class="blurb rv">' + c.blurb + '</p><ol class="items">' +
+      c.items.map(function (it, i) {
+        return '<li class="item rv" style="--i:' + i + '" data-img="' + it.img + '">' + ML.img(it, 480, '56px', 'thumb') +
+          '<div><div class="row"><h3>' + ML.esc(it.name) + '</h3><span class="leader"></span><span class="price">' + ML.price(it.price) + '</span></div>' +
+          '<p class="desc">' + ML.esc(it.desc) + '</p>' +
+          (it.tags.length ? '<div class="tagrow">' + (ML.isPick(it) ? '<span class="tag pick">Chef’s pick</span>' : '') + ML.tags(it) + '</div>' : '') +
+          '</div></li>';
+      }).join('') + '</ol>';
+    menu.appendChild(s);
+  });
+  ML.reveal('.rv');
+
+  var tabEls = [].slice.call(tabs.querySelectorAll('.tab'));
+  function setInk(el) { ink.style.left = el.offsetLeft + 'px'; ink.style.width = el.offsetWidth + 'px'; }
+  ML.spy([].slice.call(menu.querySelectorAll('.cat')), function (id) {
+    tabEls.forEach(function (t) { var on = t.dataset.id === id; t.classList.toggle('on', on); if (on) { setInk(t); ML.scrollChipIntoView(tabs, t); } });
+  }, 60);
+  window.addEventListener('resize', function () { var on = tabs.querySelector('.tab.on'); if (on) setInk(on); });
+
+  /* Floating image preview on fine pointers */
+  var peek = document.getElementById('peek'), peekImg = peek.querySelector('img');
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    var px = 0, py = 0, tx = 0, ty = 0, raf = null;
+    function tick() { px += (tx - px) * 0.16; py += (ty - py) * 0.16; peek.style.left = px + 'px'; peek.style.top = py + 'px'; raf = (Math.abs(tx - px) + Math.abs(ty - py) > 0.3) ? requestAnimationFrame(tick) : null; }
+    menu.addEventListener('pointerover', function (e) {
+      var it = e.target.closest('.item'); if (!it) return;
+      var id = it.dataset.img;
+      if (peekImg.dataset.id !== id) { peekImg.src = MENU.img(id, 480); peekImg.dataset.id = id; }
+      peek.classList.add('show');
+    });
+    menu.addEventListener('pointerout', function (e) { if (!e.relatedTarget || !e.relatedTarget.closest('.item')) peek.classList.remove('show'); });
+    window.addEventListener('pointermove', function (e) {
+      var right = e.clientX + 290 < window.innerWidth;
+      tx = right ? e.clientX + 150 : e.clientX - 150; ty = e.clientY;
+      if (!raf) { if (!px) { px = tx; py = ty; } raf = requestAnimationFrame(tick); }
+    }, { passive: true });
+  }
+  MenuScene.mount(document.getElementById('bg'), 'dust');
+})();
+</script>
+</body>
+</html>

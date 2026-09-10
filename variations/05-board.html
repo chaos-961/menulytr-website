@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-preset="noir" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lavagna · Lume</title>
+<meta name="description" content="Board-style menu with instant search for Osteria Lume.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/base.css">
+<script src="../assets/palette.js"></script>
+<style>
+#bg { filter: blur(60px); transform: scale(1.2); opacity: .6; }
+.wrap { position: relative; z-index: 1; max-width: 1320px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 48px) 120px; }
+.top { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; padding: 48px 0 26px; border-bottom: 2px solid var(--text); }
+.top h1 { font-family: var(--font-display); font-size: clamp(64px, 11vw, 128px); font-weight: 600; letter-spacing: -.05em; line-height: .85; margin: 0; text-transform: uppercase; }
+.top .sub { margin: 16px 0 0; color: var(--muted); font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; display: flex; gap: 8px 22px; flex-wrap: wrap; }
+.search { position: relative; min-width: 280px; }
+.search input { width: 100%; height: 48px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); padding: 0 52px 0 20px; font-size: 15px; outline: none; transition: border-color .25s, box-shadow .25s; }
+.search input::placeholder { color: var(--muted); }
+.search input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.search .kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 3px 7px; pointer-events: none; }
+.search .clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; border: 0; background: var(--line); cursor: pointer; display: none; place-items: center; font-size: 16px; line-height: 1; padding: 0; }
+.search.has .kbd { display: none; } .search.has .clear { display: grid; }
+.board { columns: 3; column-gap: 44px; padding-top: 40px; }
+@media (max-width: 1100px) { .board { columns: 2; } }
+@media (max-width: 700px) { .board { columns: 1; padding-top: 16px; } .top { grid-template-columns: 1fr; padding-top: 64px; } .search { min-width: 0; } }
+.block { break-inside: avoid; margin-bottom: 40px; }
+.block summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 12px; padding: 8px 0 12px; border-bottom: 1px solid var(--line); }
+.block summary::-webkit-details-marker { display: none; }
+.block h2 { margin: 0; font-family: var(--font-display); font-size: 28px; font-weight: 600; letter-spacing: -.03em; text-transform: uppercase; }
+.block .cnt { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: .1em; }
+.block .chev { display: none; width: 10px; height: 10px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); transition: transform .3s var(--ease); margin-left: auto; align-self: center; }
+.block[open] .chev { transform: rotate(225deg); }
+@media (max-width: 700px) { .block .chev { display: block; } .block summary { cursor: pointer; } }
+@media (min-width: 701px) { .block summary { cursor: default; } }
+.lines { list-style: none; margin: 0; padding: 0; }
+.line { display: grid; grid-template-columns: 46px 1fr auto; gap: 2px 14px; padding: 12px 0; border-bottom: 1px dashed var(--line); align-items: start; transition: transform .3s var(--ease); }
+.line:hover { transform: translateX(4px); }
+.line figure { margin: 0; width: 46px; height: 46px; border-radius: 9px; overflow: hidden; grid-row: span 2; }
+.line img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s var(--ease); }
+.line:hover img { transform: scale(1.1) rotate(-2deg); }
+.line .n { font-weight: 600; font-size: 15px; letter-spacing: -.005em; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.line .n .star { color: var(--accent); font-size: 11px; }
+.line .n .t { font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+.line .p { font-family: var(--font-mono); font-size: 14px; }
+.line .d { grid-column: 2 / span 2; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.line mark { background: var(--accent-soft); color: inherit; border-radius: 3px; padding: 0 2px; }
+.line.hide { display: none; }
+.empty { color: var(--muted); font-size: 13px; padding: 12px 0; font-style: italic; display: none; }
+.block.none .empty { display: block; }
+.legend { display: flex; gap: 8px 18px; flex-wrap: wrap; margin-top: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.legend .star { color: var(--accent); }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .06em; margin-top: 24px; min-height: 18px; }
+</style>
+</head>
+<body>
+<canvas id="bg" class="ml-bg" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1 class="rv" style="--i:0">Lume</h1>
+      <p class="sub rv" style="--i:1" id="sub"></p>
+    </div>
+    <label class="search rv" style="--i:2" id="search">
+      <span class="ml-sr">Search the menu</span>
+      <input type="search" id="q" placeholder="Search the menu" autocomplete="off" spellcheck="false">
+      <span class="kbd" aria-hidden="true">/</span>
+      <button class="clear" type="button" id="clear" aria-label="Clear search">&times;</button>
+    </label>
+  </header>
+  <div class="count" id="count" aria-live="polite"></div>
+  <main class="board" id="board"></main>
+  <div class="legend"><span><span class="star">&#9670;</span> Chef's pick</span><span>V Vegetarian</span><span>VG Vegan</span><span>GF Gluten free</span><span>Hot Spicy</span></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/ui.js"></script>
+<script src="../assets/scene.js"></script>
+<script>
+(function () {
+  document.getElementById('sub').innerHTML = '<span>' + MENU.kind + '</span><span>' + MENU.hours + '</span><span>' + MENU.address + '</span>';
+  var board = document.getElementById('board'), q = document.getElementById('q'), search = document.getElementById('search'), count = document.getElementById('count');
+  board.innerHTML = MENU.categories.map(function (c) {
+    return '<details class="block rv" id="' + c.id + '" open><summary><h2>' + c.name + '</h2><span class="cnt">' + c.num + ' / ' + c.items.length + '</span><span class="chev" aria-hidden="true"></span></summary><ul class="lines">' +
+      c.items.map(function (it) {
+        var tags = it.tags.filter(function (t) { return t !== 'pick'; }).map(function (t) { return '<span class="t">' + MENU.tagShort[t] + '</span>'; }).join('');
+        return '<li class="line" data-text="' + ML.esc((it.name + ' ' + it.desc + ' ' + c.name).toLowerCase()) + '"><figure>' + ML.img(it, 480, '46px') + '</figure><span class="n"><span class="nm">' + ML.esc(it.name) + '</span>' + (ML.isPick(it) ? '<span class="star" title="Chef’s pick">&#9670;</span>' : '') + tags + '</span><span class="p">' + ML.price(it.price) + '</span><span class="d">' + ML.esc(it.desc) + '</span></li>';
+      }).join('') + '</ul><p class="empty">Nothing here matches.</p></details>';
+  }).join('');
+  ML.reveal('.rv');
+
+  var lines = [].slice.call(board.querySelectorAll('.line')), blocks = [].slice.call(board.querySelectorAll('.block'));
+  lines.forEach(function (l) { l._nm = l.querySelector('.nm'); l._d = l.querySelector('.d'); l._nmText = l._nm.textContent; l._dText = l._d.textContent; });
+  function hl(el, text, term) {
+    if (!term) { el.textContent = text; return; }
+    var i = text.toLowerCase().indexOf(term);
+    if (i < 0) { el.textContent = text; return; }
+    el.innerHTML = ML.esc(text.slice(0, i)) + '<mark>' + ML.esc(text.slice(i, i + term.length)) + '</mark>' + ML.esc(text.slice(i + term.length));
+  }
+  function filter() {
+    var term = q.value.trim().toLowerCase(), n = 0;
+    search.classList.toggle('has', term.length > 0);
+    lines.forEach(function (l) { var show = !term || l.dataset.text.indexOf(term) > -1; l.classList.toggle('hide', !show); if (show) n++; hl(l._nm, l._nmText, term); hl(l._d, l._dText, term); });
+    blocks.forEach(function (b) { var any = b.querySelectorAll('.line:not(.hide)').length > 0; b.classList.toggle('none', !any); if (term) b.open = true; });
+    count.textContent = term ? n + ' of ' + lines.length + ' items match' : '';
+  }
+  q.addEventListener('input', filter);
+  document.getElementById('clear').addEventListener('click', function () { q.value = ''; filter(); q.focus(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== q && !e.target.closest('input, textarea')) { e.preventDefault(); q.focus(); }
+    if (e.key === 'Escape' && document.activeElement === q) { q.value = ''; filter(); q.blur(); }
+  });
+  /* Blocks collapse only on small screens. */
+  var mq = window.matchMedia('(max-width: 700px)');
+  function layout() { if (!mq.matches) blocks.forEach(function (b) { b.open = true; }); }
+  board.addEventListener('click', function (e) { if (!mq.matches && e.target.closest('summary')) e.preventDefault(); });
+  mq.addEventListener ? mq.addEventListener('change', layout) : mq.addListener(layout);
+  layout();
+
+  MenuScene.mount(document.getElementById('bg'), 'orbs');
+})();
+</script>
+</body>
+</html>

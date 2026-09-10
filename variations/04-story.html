@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-preset="marine" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tavola · Lume</title>
+<meta name="description" content="Chapter-by-chapter menu with a live image panel for Osteria Lume.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/base.css">
+<script src="../assets/palette.js"></script>
+<style>
+body { overflow-x: hidden; }
+.intro { position: relative; z-index: 1; min-height: 100dvh; display: grid; place-items: center; text-align: center; padding: 24px; }
+.intro h1 { font-family: var(--font-display); font-size: clamp(88px, 20vw, 240px); font-weight: 300; letter-spacing: -.05em; line-height: .88; margin: 0; }
+.intro p { color: var(--muted); font-size: clamp(16px, 2vw, 20px); max-width: 40ch; margin: 22px auto 0; }
+.intro .meta { margin-top: 26px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; color: var(--muted); display: flex; gap: 8px 24px; justify-content: center; flex-wrap: wrap; }
+.hint { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.hint i { width: 1px; height: 44px; background: var(--muted); display: block; transform-origin: top; animation: drop 1.9s var(--ease) infinite; }
+@keyframes drop { 0% { transform: scaleY(0); transform-origin: top; } 45% { transform: scaleY(1); transform-origin: top; } 55% { transform: scaleY(1); transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+.chapter { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: 100dvh; border-top: 1px solid var(--line); }
+.visual { position: sticky; top: 0; height: 100dvh; overflow: hidden; background: var(--surface); }
+.visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .7s var(--ease), transform 1.4s var(--ease); transform: scale(1.05); }
+.visual img.on { opacity: 1; transform: scale(1); }
+.visual .cap { position: absolute; left: 20px; bottom: 20px; background: color-mix(in oklab, var(--surface) 85%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 9px 14px; border-radius: 999px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .03em; color: var(--text); border: 1px solid var(--line); }
+.list { padding: clamp(40px, 9vh, 100px) clamp(24px, 5vw, 72px); }
+.list h2 { font-family: var(--font-display); font-size: clamp(46px, 6vw, 88px); font-weight: 400; margin: 0; letter-spacing: -.035em; line-height: 1; display: flex; align-items: baseline; gap: 18px; }
+.list h2 .num { font-family: var(--font-mono); font-size: 14px; color: var(--accent); letter-spacing: .15em; }
+.list .blurb { color: var(--muted); font-size: 16px; margin: 14px 0 36px; max-width: 46ch; }
+.rows { list-style: none; margin: 0; padding: 0; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 2px 20px; padding: 18px 0; border-top: 1px solid var(--line); cursor: default; transition: padding-left .4s var(--ease); }
+.row:last-child { border-bottom: 1px solid var(--line); }
+.row .name { font-family: var(--font-display); font-size: clamp(20px, 2vw, 27px); font-weight: 500; letter-spacing: -.015em; transition: color .3s; }
+.row .price { font-family: var(--font-mono); font-size: 15px; padding-top: 6px; }
+.row .desc { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 14.5px; max-width: 52ch; }
+.row .tags { grid-column: 1 / -1; display: flex; gap: 6px; margin-top: 6px; }
+.tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 7px; }
+.tag.pick { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
+.row.on { padding-left: 14px; }
+.row.on .name { color: var(--accent); }
+.dots { position: fixed; right: 22px; top: 50%; transform: translateY(-50%); z-index: 20; display: flex; flex-direction: column; gap: 12px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); border: 0; padding: 0; cursor: pointer; transition: transform .3s var(--ease), background .3s; position: relative; }
+.dot.on { background: var(--accent); transform: scale(1.5); }
+.dot::after { content: attr(data-label); position: absolute; right: 18px; top: 50%; transform: translateY(-50%) translateX(6px); font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; opacity: 0; transition: .25s; color: var(--muted); }
+.dot:hover::after, .dot.on::after { opacity: 1; transform: translateY(-50%); }
+.outro { position: relative; z-index: 1; padding: 80px 24px; text-align: center; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+.outro strong { display: block; font-family: var(--font-display); font-size: 40px; font-weight: 300; color: var(--text); margin-bottom: 10px; letter-spacing: -.03em; }
+@media (max-width: 860px) {
+  .chapter { grid-template-columns: 1fr; min-height: 0; }
+  .visual { height: 42vh; }
+  .list { padding: 28px 20px 48px; }
+  .dots { display: none; }
+  .row.on { padding-left: 0; }
+}
+</style>
+</head>
+<body>
+<canvas id="bg" class="ml-bg" aria-hidden="true"></canvas>
+<header class="intro">
+  <div>
+    <h1 class="rv" style="--i:0">Lume</h1>
+    <p class="rv" style="--i:1" id="lede"></p>
+    <div class="meta rv" style="--i:2" id="meta"></div>
+  </div>
+  <div class="hint" aria-hidden="true">Scroll<i></i></div>
+</header>
+<main id="chapters"></main>
+<footer class="outro"><strong>Buon appetito.</strong><span id="addr"></span></footer>
+<nav class="dots" id="dots" aria-label="Jump to section"></nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/ui.js"></script>
+<script src="../assets/scene.js"></script>
+<script>
+(function () {
+  document.getElementById('lede').textContent = MENU.tagline;
+  document.getElementById('meta').innerHTML = '<span>' + MENU.hours + '</span><span>' + MENU.address + '</span>';
+  document.getElementById('addr').textContent = MENU.address + ' · ' + MENU.phone;
+  var chapters = document.getElementById('chapters'), dots = document.getElementById('dots');
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  MENU.categories.forEach(function (c) {
+    var s = document.createElement('section'); s.className = 'chapter'; s.id = c.id;
+    var first = c.items[0];
+    s.innerHTML = '<div class="visual"><img class="on" data-id="' + first.img + '" src="' + MENU.img(first.img, 1200) + '" srcset="' + MENU.srcset(first.img) + '" sizes="(max-width: 860px) 100vw, 50vw" alt="' + ML.esc(first.name) + '"><img alt="" aria-hidden="true"><span class="cap">' + ML.esc(first.name) + '</span></div>' +
+      '<div class="list"><h2 class="rv"><span class="num">' + c.num + '</span>' + c.name + '</h2><p class="blurb rv">' + c.blurb + '</p><ul class="rows">' +
+      c.items.map(function (it, i) {
+        return '<li class="row rv' + (i === 0 ? ' on' : '') + '" style="--i:' + i + '" data-img="' + it.img + '" data-name="' + ML.esc(it.name) + '" tabindex="0"><span class="name">' + ML.esc(it.name) + '</span><span class="price">' + ML.price(it.price) + '</span><p class="desc">' + ML.esc(it.desc) + '</p>' +
+          (it.tags.length ? '<div class="tags">' + (ML.isPick(it) ? '<span class="tag pick">Pick</span>' : '') + ML.tags(it) + '</div>' : '') + '</li>';
+      }).join('') + '</ul></div>';
+    chapters.appendChild(s);
+    var d = document.createElement('button'); d.className = 'dot'; d.type = 'button'; d.dataset.id = c.id; d.dataset.label = c.name; d.setAttribute('aria-label', c.name);
+    d.addEventListener('click', function () { s.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    dots.appendChild(d);
+  });
+  ML.reveal('.rv');
+
+  function swap(chapter, row) {
+    var visual = chapter.querySelector('.visual'), cur = visual.querySelector('img.on'), nxt = visual.querySelector('img:not(.on)');
+    var id = row.dataset.img; if (cur.dataset.id === id) return;
+    chapter.querySelectorAll('.row').forEach(function (r) { r.classList.toggle('on', r === row); });
+    visual.querySelector('.cap').textContent = row.dataset.name;
+    nxt.dataset.id = id; nxt.src = MENU.img(id, 1200); nxt.srcset = MENU.srcset(id); nxt.sizes = '(max-width: 860px) 100vw, 50vw'; nxt.alt = row.dataset.name;
+    var token = visual._tok = (visual._tok || 0) + 1;
+    (nxt.decode ? nxt.decode().catch(function () {}) : Promise.resolve()).then(function () {
+      if (token !== visual._tok) return;
+      nxt.classList.add('on'); cur.classList.remove('on'); cur.removeAttribute('data-id');
+    });
+  }
+  if (fine) {
+    chapters.addEventListener('pointerover', function (e) { var r = e.target.closest('.row'); if (r) swap(r.closest('.chapter'), r); });
+  }
+  chapters.addEventListener('focusin', function (e) { var r = e.target.closest('.row'); if (r) swap(r.closest('.chapter'), r); });
+  if (!fine) {
+    /* On touch, the row nearest the image panel drives the picture. */
+    var ticking = false;
+    window.addEventListener('scroll', function () {
+      if (ticking) return; ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        var line = window.innerHeight * 0.42 + 60;
+        [].forEach.call(chapters.querySelectorAll('.chapter'), function (ch) {
+          var best = null;
+          [].forEach.call(ch.querySelectorAll('.row'), function (r) { if (r.getBoundingClientRect().top <= line) best = r; });
+          if (best) swap(ch, best);
+        });
+      });
+    }, { passive: true });
+  }
+  var dotEls = [].slice.call(dots.querySelectorAll('.dot'));
+  ML.spy([].slice.call(chapters.querySelectorAll('.chapter')), function (id) { dotEls.forEach(function (d) { d.classList.toggle('on', d.dataset.id === id); }); }, 0);
+
+  MenuScene.mount(document.getElementById('bg'), 'waves');
+})();
+</script>
+</body>
+</html>

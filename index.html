@@ -1,11 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-preset="paper" data-root="">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Menulytr</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menulytr · Five menu layouts</title>
+<meta name="description" content="Five restaurant menu layouts for one restaurant, sharing one customizable palette.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<script src="assets/palette.js"></script>
+<style>
+.wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: clamp(56px, 12vh, 120px) clamp(20px, 5vw, 48px) 100px; }
+.k { font-family: var(--font-mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px; }
+header h1 { font-family: var(--font-display); font-size: clamp(48px, 8vw, 104px); font-weight: 500; letter-spacing: -.04em; margin: 0; line-height: .95; }
+header p { color: var(--muted); font-size: clamp(16px, 1.8vw, 20px); max-width: 54ch; margin: 20px 0 0; }
+.layouts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; margin-top: 56px; }
+.lay { text-decoration: none; border: 1px solid var(--line); border-radius: calc(var(--radius) + 8px); background: var(--surface); padding: 14px; display: flex; flex-direction: column; gap: 14px; transition: transform .45s var(--ease), box-shadow .45s var(--ease), border-color .3s; }
+.lay:hover { transform: translateY(-4px); box-shadow: 0 30px 40px -28px rgb(0 0 0 / .45); border-color: var(--accent); }
+.thumb { aspect-ratio: 16 / 10; border-radius: var(--radius); background: var(--bg); border: 1px solid var(--line); position: relative; overflow: hidden; padding: 9%; display: grid; gap: 6px; }
+.b { background: var(--line); border-radius: 3px; min-height: 5px; }
+.b.a { background: var(--accent); }
+.b.t { background: var(--text); opacity: .8; }
+.lay:hover .b.a { animation: pulse 1.6s var(--ease) infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+.t-editorial { grid-template-columns: 1fr; align-content: center; justify-items: center; }
+.t-editorial .b { width: 60%; height: 5px; } .t-editorial .b.t { width: 30%; height: 12px; margin-bottom: 4px; } .t-editorial .b.a { width: 18%; height: 3px; }
+.t-gallery { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; }
+.t-gallery .b { border-radius: 4px; }
+.t-split { grid-template-columns: 28% 1fr; }
+.t-split .side { display: grid; gap: 5px; align-content: start; } .t-split .side .b { height: 6px; }
+.t-split .main { display: grid; gap: 5px; align-content: start; } .t-split .main .b { height: 11px; }
+.t-story { grid-template-columns: 1fr 1fr; }
+.t-story .b.img { border-radius: 4px; }
+.t-story .rows { display: grid; gap: 5px; align-content: center; } .t-story .rows .b { height: 5px; }
+.t-board { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.t-board .col { display: grid; gap: 4px; align-content: start; } .t-board .col .b { height: 4px; } .t-board .col .b.t { height: 8px; margin-bottom: 2px; }
+.lay h2 { margin: 0; font-family: var(--font-display); font-size: 24px; font-weight: 500; display: flex; gap: 12px; align-items: baseline; letter-spacing: -.01em; }
+.lay h2 .num { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: .12em; }
+.lay p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.lay .go { margin-top: auto; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; padding-top: 4px; }
+.lay .go::after { content: ''; width: 14px; height: 1px; background: currentColor; transition: width .3s var(--ease); }
+.lay:hover .go::after { width: 28px; }
+.notes { margin-top: 64px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 24px; color: var(--muted); font-size: 14px; line-height: 1.55; border-top: 1px solid var(--line); padding-top: 28px; }
+.notes strong { display: block; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+.notes code { font-family: var(--font-mono); font-size: 12.5px; background: var(--surface); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+</style>
 </head>
 <body>
-  <h1>Hello World!</h1>
+<canvas id="bg" class="ml-bg" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header>
+    <p class="k rv" style="--i:0">Menulytr · Layout study</p>
+    <h1 class="rv" style="--i:1">One restaurant.<br>Five ways to read the menu.</h1>
+    <p class="rv" style="--i:2">Osteria Lume, an invented pizzeria in Trastevere, rendered five ways. Same dishes, same photos, same palette. Pick a layout below, then tune the colors and type from the panel in the top right. Your palette follows you between layouts.</p>
+  </header>
+
+  <main class="layouts">
+    <a class="lay rv" style="--i:0" href="variations/01-editorial.html">
+      <div class="thumb t-editorial" aria-hidden="true"><span class="b t"></span><span class="b a"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+      <h2><span class="num">01</span>Carta</h2>
+      <p>A printed carta, single column with dotted leaders. Hover a dish on desktop and its photo floats beside the cursor.</p>
+      <span class="go">Open Carta</span>
+    </a>
+    <a class="lay rv" style="--i:1" href="variations/02-gallery.html">
+      <div class="thumb t-gallery" aria-hidden="true"><span class="b"></span><span class="b a"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+      <h2><span class="num">02</span>Mosaico</h2>
+      <p>Photo-first grid with a sliding filter pill and a detail view for every dish. A soft three.js form breathes in the header.</p>
+      <span class="go">Open Mosaico</span>
+    </a>
+    <a class="lay rv" style="--i:2" href="variations/03-split.html">
+      <div class="thumb t-split" aria-hidden="true"><div class="side"><span class="b t"></span><span class="b a"></span><span class="b"></span><span class="b"></span></div><div class="main"><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div></div>
+      <h2><span class="num">03</span>Bottega</h2>
+      <p>Sticky sidebar with scroll-spy on desktop, chip navigation on phones. Compact cards with thumbnails.</p>
+      <span class="go">Open Bottega</span>
+    </a>
+    <a class="lay rv" style="--i:3" href="variations/04-story.html">
+      <div class="thumb t-story" aria-hidden="true"><span class="b a img"></span><div class="rows"><span class="b t"></span><span class="b"></span><span class="b"></span><span class="b"></span></div></div>
+      <h2><span class="num">04</span>Tavola</h2>
+      <p>Five full-height chapters. The photo panel stays pinned and swaps as you hover or scroll through the dishes.</p>
+      <span class="go">Open Tavola</span>
+    </a>
+    <a class="lay rv" style="--i:4" href="variations/05-board.html">
+      <div class="thumb t-board" aria-hidden="true"><div class="col"><span class="b t"></span><span class="b"></span><span class="b"></span><span class="b a"></span></div><div class="col"><span class="b t"></span><span class="b"></span><span class="b"></span><span class="b"></span></div><div class="col"><span class="b t"></span><span class="b a"></span><span class="b"></span><span class="b"></span></div></div>
+      <h2><span class="num">05</span>Lavagna</h2>
+      <p>A dense board in columns with instant search and highlighted matches. Press slash to search. Sections fold on phones.</p>
+      <span class="go">Open Lavagna</span>
+    </a>
+  </main>
+
+  <section class="notes">
+    <div><strong>Run it locally</strong>Double-click <code>run.bat</code>. It serves the folder with Node (or Python) and opens the browser.</div>
+    <div><strong>Palette</strong>Six presets plus every color, corner radius, and heading typeface. Copy the result as CSS variables.</div>
+    <div><strong>Credits</strong>Photos from Unsplash. Type by Fraunces, Instrument Sans, and JetBrains Mono. Backgrounds drawn with three.js.</div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+<script src="assets/menu.js"></script>
+<script src="assets/ui.js"></script>
+<script src="assets/scene.js"></script>
+<script>
+ML.reveal('.rv');
+MenuScene.mount(document.getElementById('bg'), 'dust');
+</script>
 </body>
 </html>
